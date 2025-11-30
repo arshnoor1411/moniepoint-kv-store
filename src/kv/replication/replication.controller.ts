@@ -8,7 +8,6 @@ export class ReplicationController {
 
   @Post('append')
   async append(@Body() body) {
-    // body is a single WAL record
     await this.engine.applyReplicaRecord(body);
     return { status: 'ok' };
   }

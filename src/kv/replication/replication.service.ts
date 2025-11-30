@@ -12,17 +12,17 @@ export class ReplicationService {
 
   async maybeReplicate(rec: any) {
     if (this.peers.length === 0) return;
-    // fire-and-forget for ASYNC
+
     if (this.ackMode === 'ASYNC') {
       for (const p of this.peers) this.sendToPeer(p, '/replicate/append', rec);
       return;
     }
-    // MAJORITY: wait for majority acks
+
     const promises = this.peers.map((p) =>
       this.sendToPeer(p, '/replicate/append', rec),
     );
     const results = await Promise.allSettled(promises);
-    const success = results.filter((r) => r.status === 'fulfilled').length + 1; // +1 leader
+    const success = results.filter((r) => r.status === 'fulfilled').length + 1;
     const need = Math.floor(this.peers.length / 2) + 1;
     if (success < need) this.logger.warn('Replication majority not reached');
   }

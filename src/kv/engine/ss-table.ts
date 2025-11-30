@@ -23,7 +23,6 @@ export class SSTable {
     fs.writeSync(fd, indexJson);
     offset += Buffer.byteLength(indexJson);
 
-    // build and write bloom
     const bloom = new BloomFilter(1024 * 8, 3);
     for (const [k] of entries) bloom.add(k);
     const bloomJson =
@@ -57,7 +56,7 @@ export class SSTable {
 
   static get(filePath: string, key: string, index: any) {
     const fd = fs.openSync(filePath, 'r');
-    // Find nearest index entry <= key via binary search over index
+
     let lo = 0,
       hi = index.length - 1,
       pos = 0;
@@ -74,7 +73,7 @@ export class SSTable {
         hi = mid - 1;
       }
     }
-    // seek to pos and scan forward a limited chunk
+
     const stat = fs.fstatSync(fd);
     const toRead = Math.min(64 * 1024, stat.size - pos);
     const buf = Buffer.alloc(toRead);
@@ -102,7 +101,6 @@ export class SSTable {
   }
 
   static async merge(inputs: string[], tmpOut: string) {
-    // naive full merge: read all entries, keep last-writer wins by file order
     const map = new Map<string, any>();
     for (const f of inputs) {
       const lines = fs.readFileSync(f, 'utf8').trim().split('\n');

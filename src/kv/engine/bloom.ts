@@ -1,6 +1,6 @@
 export class BloomFilter {
-  private m: number; // bits
-  private k: number; // hashes
+  private m: number;
+  private k: number;
   private bits: Uint8Array;
 
   constructor(m = 1024 * 8, k = 3) {
